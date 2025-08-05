@@ -3,11 +3,9 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/lunchbox/", // ✅ critical for GitHub Pages
-  server: {
-    host: true,
-  },
+  base: "/lunchbox/", // Important for GitHub Pages
   build: {
-    sourcemap: true,
+    outDir: "dist",
+    sourcemap: true, // For better debugging
   },
 });
