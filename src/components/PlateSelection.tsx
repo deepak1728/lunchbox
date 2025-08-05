@@ -38,7 +38,7 @@ const PlateSelection = ({ setPlateType }: Props) => {
       {/* Header */}
       <div className="flex flex-col items-center space-y-2 mb-8">
         <img
-          src="/images/logo.jpg"
+          src="./images/logo.jpg"
           alt="Logo"
           className="w-20 h-20 object-cover rounded-full shadow"
           onError={handleImageError}
@@ -65,7 +65,7 @@ const PlateSelection = ({ setPlateType }: Props) => {
         >
           <div className="h-52 overflow-hidden rounded-t-xl">
             <img
-              src="/images/veg-plate.jpg"
+              src="./images/veg-plate.jpg"
               alt="Veg Plate"
               className="object-cover w-full h-full"
               onError={handleImageError}
@@ -88,7 +88,7 @@ const PlateSelection = ({ setPlateType }: Props) => {
         >
           <div className="h-52 overflow-hidden rounded-t-xl">
             <img
-              src="/images/nonveg-plate.jpg"
+              src="./images/nonveg-plate.jpg"
               alt="Non-Veg Plate"
               className="object-cover w-full h-full"
               onError={handleImageError}

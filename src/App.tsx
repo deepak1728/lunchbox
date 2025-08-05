@@ -23,9 +23,14 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    const storedPlateType = localStorage.getItem("plateType");
-    if (storedPlateType) {
-      setPlateType(JSON.parse(storedPlateType));
+    try {
+      const storedPlateType = localStorage.getItem("plateType");
+      if (storedPlateType) {
+        setPlateType(JSON.parse(storedPlateType));
+      }
+    } catch (error) {
+      console.error("Error parsing stored plate type:", error);
+      localStorage.removeItem("plateType");
     }
   }, []);
 
@@ -39,16 +44,22 @@ function App() {
 
   useEffect(() => {
     const protectedRoutes = ["/items"];
-    const storedPlateType = localStorage.getItem("plateType");
+    const currentPath = location?.pathname || "";
 
-    if (!plateType && protectedRoutes.includes(location.pathname)) {
-      if (storedPlateType) {
-        setPlateType(JSON.parse(storedPlateType));
-      } else {
-        navigate("/");
+    if (!plateType && protectedRoutes.includes(currentPath)) {
+      try {
+        const storedPlateType = localStorage.getItem("plateType");
+        if (storedPlateType) {
+          setPlateType(JSON.parse(storedPlateType));
+        } else {
+          navigate("/", { replace: true });
+        }
+      } catch (error) {
+        console.error("Error in route protection:", error);
+        navigate("/", { replace: true });
       }
     }
-  }, [plateType, location.pathname, navigate]);
+  }, [plateType, location?.pathname, navigate]);
 
   const handleSelectItem = (slot: Item["slot"], item: Item) => {
     setSelectedItems((prev) => ({ ...prev, [slot]: item }));
@@ -62,40 +73,45 @@ function App() {
     });
   };
 
-  // FIXED: Now actually adds to cart
   const handleAddToCart = () => {
     if (!plateType) return;
 
-    const pricePerBox = plateType === "veg" ? 7.99 : 8.99;
+    try {
+      const pricePerBox = plateType === "veg" ? 7.99 : 8.99;
 
-    addToGlobalCart({
-      plateType,
-      selectedItems,
-      quantity,
-      pricePerBox,
-      defaultCurry: {
-        id: 999,
-        name: plateType === "veg" ? "Mixed Veg Curry" : "Chicken Curry",
-        image:
-          plateType === "veg" ? "/images/veg-curry.png" : "/images/chicken.jpg",
-        slot: "curry",
-      },
-      defaultDal: {
-        id: 998,
-        name: "Dal",
-        image: "/images/dal.png",
-        slot: "dal",
-      },
-    });
+      addToGlobalCart({
+        plateType,
+        selectedItems,
+        quantity,
+        pricePerBox,
+        defaultCurry: {
+          id: 999,
+          name: plateType === "veg" ? "Mixed Veg Curry" : "Chicken Curry",
+          image:
+            plateType === "veg"
+              ? "/images/veg-curry.png"
+              : "/images/chicken.jpg",
+          slot: "curry",
+        },
+        defaultDal: {
+          id: 998,
+          name: "Dal",
+          image: "/images/dal.png",
+          slot: "dal",
+        },
+      });
 
-    // Reset
-    setPlateType(null);
-    setSelectedItems({});
-    setQuantity(1);
-    setCurries([]);
-    localStorage.removeItem("plateType");
+      // Reset
+      setPlateType(null);
+      setSelectedItems({});
+      setQuantity(1);
+      setCurries([]);
+      localStorage.removeItem("plateType");
 
-    navigate("/cart"); // ✅ Go to cart after adding
+      navigate("/cart", { replace: true });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
   return (
@@ -110,17 +126,21 @@ function App() {
           <Route
             path="/items"
             element={
-              <StepItemSelection
-                plateType={plateType!}
-                selectedItems={selectedItems}
-                onSelect={handleSelectItem}
-                onRemove={handleRemoveItem}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                curries={curries}
-                setCurries={setCurries}
-                onAddToCart={handleAddToCart}
-              />
+              plateType ? (
+                <StepItemSelection
+                  plateType={plateType}
+                  selectedItems={selectedItems}
+                  onSelect={handleSelectItem}
+                  onRemove={handleRemoveItem}
+                  quantity={quantity}
+                  setQuantity={setQuantity}
+                  curries={curries}
+                  setCurries={setCurries}
+                  onAddToCart={handleAddToCart}
+                />
+              ) : (
+                <div>Loading...</div>
+              )
             }
           />
           <Route path="/cart" element={<Cart />} />
@@ -144,7 +164,7 @@ function App() {
                 </p>
                 <button
                   className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/", { replace: true })}
                 >
                   Back to Home →
                 </button>
@@ -153,6 +173,11 @@ function App() {
           />
         </Route>
         <Route path="/admin" element={<AdminPanel />} />
+        {/* Catch-all route for unmatched paths */}
+        <Route
+          path="*"
+          element={<PlateSelection setPlateType={setPlateType} />}
+        />
       </Routes>
     </div>
   );
