@@ -16,6 +16,7 @@ interface StepItemSelectionProps {
 }
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+console.log("API Base URL:", apiBaseUrl);
 
 // ✅ Fixed image paths to be relative (for GitHub Pages)
 const riceItems: Item[] = [
@@ -41,7 +42,7 @@ const StepItemSelection: React.FC<StepItemSelectionProps> = ({
       navigate("/");
       return;
     }
-
+    console.log("API Base URL:", apiBaseUrl);
     fetch(`${apiBaseUrl}/curries?type=${plateType}`)
       .then((res) => res.json())
       .then((data: Item[]) => {

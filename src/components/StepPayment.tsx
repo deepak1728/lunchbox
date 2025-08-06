@@ -5,6 +5,7 @@ import type { CartOrder } from "../types";
 import { updateGlobalCart } from "./Cart";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+console.log("API Base URL:", apiBaseUrl);
 
 const StepPayment: React.FC = () => {
   const stripe = useStripe();
@@ -44,6 +45,7 @@ const StepPayment: React.FC = () => {
     }
 
     try {
+      console.log("API Base URL:", apiBaseUrl);
       const res = await fetch(`${apiBaseUrl}/api/create-payment-intent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
